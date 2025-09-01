@@ -1,20 +1,9 @@
-"use client"
-
-import { useQuery } from "@tanstack/react-query";
-import { getCatalog } from "./api/product/get-catalog";
+'use client';
 
 export default function Home() {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["get-catalog"],
-    queryFn: () => getCatalog(""),
-  });
-
-  if (isLoading) return <p>Carregando...</p>;
-  if (isError) return <p>Ocorreu um erro ao carregar os dados.</p>;
-
   return (
-    <main className="">
-      
-    </main>
+    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      <h1>Em breve</h1>
+    </div>
   );
 }

@@ -9,7 +9,7 @@ export class GetCatalogUseCase {
     private readonly productRepository: ProductRepository,
   ) {}
 
-  async execute(): Promise<Product[]> {
-    return this.productRepository.getCatalog();
+  async execute(filter: string): Promise<Product[]> {
+    return this.productRepository.getCatalog(filter);
   }
 }

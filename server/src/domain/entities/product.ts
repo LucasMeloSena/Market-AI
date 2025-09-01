@@ -1,11 +1,11 @@
 import { Store } from './store';
 
 export class Product {
-  private id: string;
-  private name: string;
-  private price: number;
-  private embedding: number[];
-  private store: Store;
+  id: string;
+  name: string;
+  price: number;
+  embedding: number[];
+  store: Store;
 
   constructor(
     id: string,

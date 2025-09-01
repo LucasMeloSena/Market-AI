@@ -9,11 +9,12 @@ datasource db {
 }
 
 model Store {
-  id         String    @id @default(uuid())
-  name       String
-  createdAt  DateTime  @default(now())
-  updateddAt DateTime  @default(now())
-  Product    Product[]
+  id        String    @id @default(uuid())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
+  Product   Product[]
+  Cart      Cart[]
 }
 
 model Product {
@@ -22,6 +23,45 @@ model Product {
   price     Decimal @db.Decimal(9, 2)
   embedding Float[]
 
-  storeId String
-  store   Store  @relation(fields: [storeId], references: [id])
+  storeId  String
+  store    Store      @relation(fields: [storeId], references: [id])
+  CartItem CartItem[]
+}
+
+model User {
+  id         String   @id @default(uuid())
+  name       String
+  email      String   @unique
+  password   String
+  createdAt  DateTime @default(now())
+  updateddAt DateTime @default(now())
+
+  Cart Cart[]
+}
+
+model Cart {
+  id        String   @id @default(uuid())
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  userId   String
+  user     User       @relation(fields: [userId], references: [id])
+  storeId  String
+  store    Store      @relation(fields: [storeId], references: [id])
+  CartItem CartItem[]
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
 }
