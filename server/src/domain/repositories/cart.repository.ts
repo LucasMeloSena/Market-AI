@@ -6,4 +6,10 @@ export interface CartRepository {
   addToCart(cartId: string, cartDto: CartDto): Promise<void>;
   getCart(userId: string): Promise<Cart | null>;
   inactiveCart(cartId: string): Promise<void>;
+  updateCartItemQuantity(
+    cartId: string,
+    productId: string,
+    quantity: number,
+  ): Promise<void>;
+  removeProductFromCart(cartId: string, productId: string): Promise<void>;
 }

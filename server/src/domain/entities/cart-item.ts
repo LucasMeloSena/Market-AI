@@ -1,4 +1,4 @@
-import { Product } from 'generated/prisma';
+import { Product } from './product';
 
 export class CartItem {
   id: string;

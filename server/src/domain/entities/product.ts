@@ -5,7 +5,7 @@ export class Product {
   name: string;
   price: number;
   embedding: number[];
-  store: Store;
+  store?: Store;
 
   constructor(
     id: string,

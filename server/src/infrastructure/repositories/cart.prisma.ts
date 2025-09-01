@@ -60,7 +60,11 @@ export class PrismaCartRepository implements CartRepository {
         include: {
           store: true,
           user: true,
-          CartItem: true,
+          CartItem: {
+            include: {
+              product: true,
+            },
+          },
         },
       });
       return cart.length ? CartMapper.toDomain(cart[0]) : null;
@@ -77,6 +81,44 @@ export class PrismaCartRepository implements CartRepository {
       });
     } catch (error) {
       throw new InternalServerErrorException('Failed to inactive cart');
+    }
+  }
+
+  async updateCartItemQuantity(
+    cartId: string,
+    productId: string,
+    quantity: number,
+  ): Promise<void> {
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.cart.update({
+          where: { id: cartId },
+          data: { active: true },
+        });
+        await tx.cartItem.update({
+          where: { cartId_productId: { cartId, productId } },
+          data: { quantity },
+        });
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to update cart item quantity',
+      );
+    }
+  }
+
+  async removeProductFromCart(
+    cartId: string,
+    productId: string,
+  ): Promise<void> {
+    try {
+      await this.prisma.cartItem.delete({
+        where: { cartId_productId: { cartId, productId } },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to remove product from cart',
+      );
     }
   }
 }

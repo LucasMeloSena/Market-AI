@@ -7,6 +7,10 @@ import { getCatalog } from "@/api/product/get-catalog";
 import { Input } from "@/components/shadcn/input";
 import { Card, CardContent } from "@/components/shadcn/card";
 import { Button } from "@/components/shadcn/button";
+import { addToCart } from "@/api/cart/add-to-cart";
+import { toast } from "sonner";
+
+const userId = "7a330f30-a103-4a58-9925-a4126abcc5c1"
 
 export default function ProductsPage() {
   const params = useSearchParams();
@@ -16,6 +20,11 @@ export default function ProductsPage() {
     queryKey: ["get-catalog", search],
     queryFn: () => getCatalog(search),
   });
+
+  const handleAddToCart = async (productId: string) => {
+    await addToCart({userId, productId, quantity: 1})
+    toast.success("Produto adicionado ao carrinho")
+  }
 
   return (
     <div className="p-6 pt-20 lg:pt-6">
@@ -68,7 +77,7 @@ export default function ProductsPage() {
                   </div>
                 </div>
 
-                <Button className="w-full">
+                <Button className="w-full" onClick={() => handleAddToCart(product.id)}>
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   Adicionar ao Carrinho
                 </Button>

@@ -10,6 +10,12 @@ export class GetCartUseCase {
   ) {}
 
   async execute(userId: string): Promise<Cart> {
-    return this.cartRepository.getCart(userId);
+    const cart = await this.cartRepository.getCart(userId);
+    const total = cart.items.reduce(
+      (acc, item) => acc + item.product.price * item.quantity,
+      0,
+    );
+    cart.total = total;
+    return cart;
   }
 }

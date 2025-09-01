@@ -16,7 +16,7 @@ export class Cart {
     store: Store,
     user: User,
     items: CartItem[],
-    total: number = 0,
+    total: number
   ) {
     this.id = id;
     this.active = active;
