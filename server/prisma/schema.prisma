@@ -36,7 +36,8 @@ model User {
   createdAt  DateTime @default(now())
   updateddAt DateTime @default(now())
 
-  Cart Cart[]
+  Cart         Cart[]
+  ChatSessions ChatSessions[]
 }
 
 model Cart {
@@ -64,4 +65,57 @@ model CartItem {
   product   Product @relation(fields: [productId], references: [id])
 
   @@unique([cartId, productId])
+}
+
+model ChatSessions {
+  id           String         @id @default(uuid())
+  userId       String
+  user         User           @relation(fields: [userId], references: [id])
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now())
+  ChatMessages ChatMessages[]
+}
+
+enum Sender {
+  USER
+  ASSISTANT
+}
+
+enum MessageType {
+  TEXT
+  SUGGEST_CARTS_RESULT
+}
+
+model ChatMessages {
+  id              String      @id @default(uuid())
+  content         String
+  sender          Sender
+  openAiMessageId String?     @unique
+  messageType     MessageType @default(TEXT)
+
+  chatSessionId String
+  chatSession   ChatSessions @relation(fields: [chatSessionId], references: [id])
+
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @default(now())
+  ChatMessageActions ChatMessageActions[]
+}
+
+enum ActionType {
+  SUGGEST_CARTS
+}
+
+model ChatMessageActions {
+  id         String     @id @default(uuid())
+  actionType ActionType
+  payload    Json
+
+  chatMessageId String
+  chatMessage   ChatMessages @relation(fields: [chatMessageId], references: [id])
+
+  createdAt   DateTime @default(now())
+  confirmedAt DateTime @default(now())
+  executedAt  DateTime @default(now())
+
+  @@unique([chatMessageId, actionType])
 }

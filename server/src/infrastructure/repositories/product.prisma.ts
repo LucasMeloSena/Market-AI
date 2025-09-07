@@ -4,6 +4,7 @@ import { Product } from 'src/domain/entities/product';
 import { ProductMapper } from 'src/domain/usecases/product/mapper';
 import { ProductRepository } from 'src/domain/repositories/product.repository';
 import { GetCatalogError } from 'src/domain/errors/get-catalog-error';
+import { Product as ProductPrisma } from 'generated/prisma';
 
 @Injectable()
 export class PrismaProductRepository implements ProductRepository {
@@ -41,6 +42,42 @@ export class PrismaProductRepository implements ProductRepository {
       return ProductMapper.toDomain(product);
     } catch (e) {
       throw new NotFoundException('Error when getting product by ID.');
+    }
+  }
+
+  async getRelevantProductsByStore(embedding: number[]): Promise<Product[]> {
+    try {
+      const products = await this.prisma.$queryRaw<ProductPrisma[]>`
+        SELECT "storeId", array_agg(p.*) AS products
+        FROM "products" p
+        WHERE embedding <=> ${embedding} < 0.5
+        GROUP BY "storeId"
+        ORDER BY embedding <=> ${embedding}
+        LIMIT 5
+      `;
+      console.log(products);
+      return products.map(ProductMapper.toDomain);
+    } catch (e) {
+      throw new Error('Error when getting relevant products.');
+    }
+  }
+
+  async updateEmbedding(
+    products: { productId: string; embedding: number[] }[],
+  ): Promise<void> {
+    try {
+      await this.prisma.$transaction(
+        products.map((product) =>
+          this.prisma.product.update({
+            where: { id: product.productId },
+            data: {
+              embedding: product.embedding,
+            },
+          }),
+        ),
+      );
+    } catch (e) {
+      throw new Error('Error when updating product embeddings.');
     }
   }
 }

@@ -10,7 +10,7 @@ import { Button } from "@/components/shadcn/button";
 import { addToCart } from "@/api/cart/add-to-cart";
 import { toast } from "sonner";
 
-const userId = "7a330f30-a103-4a58-9925-a4126abcc5c1"
+const userId = "7f763aed-7e3a-4c31-b3a6-d6a175bc34bc"
 
 export default function ProductsPage() {
   const params = useSearchParams();

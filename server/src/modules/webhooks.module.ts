@@ -1,15 +1,13 @@
 import { Module } from '@nestjs/common';
-import { ProductController } from 'src/controllers/product.controller';
-import { BatchEmbedProductsUseCase } from 'src/domain/usecases/llm/batch-embed-products';
-import { EmbedProductsUseCase } from 'src/domain/usecases/product/embed-products';
-import { GetCatalogUseCase } from 'src/domain/usecases/product/get-catalog';
+import { WebhooksController } from 'src/controllers/webhooks.controller';
+import { BatchCompletedUseCase } from 'src/domain/usecases/llm/batch-completed';
 import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
 import { OpenAiLlmRepository } from 'src/infrastructure/repositories/llm.openai';
 import { PrismaProductRepository } from 'src/infrastructure/repositories/product.prisma';
 
 @Module({
   imports: [],
-  controllers: [ProductController],
+  controllers: [WebhooksController],
   providers: [
     PrismaService,
     {
@@ -20,9 +18,7 @@ import { PrismaProductRepository } from 'src/infrastructure/repositories/product
       provide: 'LlmRepository',
       useClass: OpenAiLlmRepository,
     },
-    GetCatalogUseCase,
-    EmbedProductsUseCase,
-    BatchEmbedProductsUseCase,
+    BatchCompletedUseCase,
   ],
 })
-export class ProductModule {}
+export class WebhooksModule {}
