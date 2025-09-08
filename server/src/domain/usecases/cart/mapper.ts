@@ -15,7 +15,6 @@ export class CartMapper {
           id: item.product.id,
           name: item.product.name,
           price: Number(item.product.price),
-          embedding: item.product.embedding,
         },
       })),
     );

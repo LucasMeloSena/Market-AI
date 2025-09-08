@@ -1,3 +1,3 @@
 export enum MessageActionType {
-  SUGGEST_CART = 'suggest_cart',
+  SUGGEST_CARTS = 'SUGGEST_CARTS',
 }

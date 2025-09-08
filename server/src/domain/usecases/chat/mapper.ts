@@ -64,9 +64,7 @@ export class ChatMapper {
   static actionToDomain(raw: ChatMessageActions): ChatMessageAction {
     return new ChatMessageAction(
       Object.keys(ActionType).find(
-        (key) =>
-          (key === 'SUGGEST_CART' && raw.actionType === 'SUGGEST_CARTS') ||
-          (key === 'SUGGEST_CART' && raw.actionType === 'SUGGEST_CARTS'),
+        (key) => key === 'SUGGEST_CARTS' && raw.actionType === 'SUGGEST_CARTS',
       ) as MessageActionType,
       JSON.stringify(raw.payload),
       raw.chatMessageId,

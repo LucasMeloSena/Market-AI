@@ -7,7 +7,6 @@ export class ProductMapper {
       product.id,
       product.name,
       Number(product.price),
-      product.embedding,
       product.store,
     );
   }

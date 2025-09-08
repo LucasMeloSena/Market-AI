@@ -12,9 +12,9 @@ export class BatchEmbedProductsUseCase {
     const json = products
       .map((product) =>
         JSON.stringify({
-          customId: product.id,
+          custom_id: product.id,
           method: 'POST',
-          url: 'v1/embeddings',
+          url: '/v1/embeddings',
           body: {
             model: 'text-embedding-3-small',
             input: product.name,

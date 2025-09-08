@@ -23,11 +23,13 @@ export class ConfirmActionUseCase {
     if (session && action) {
       await this.chatRepository.confirmAction(actionId);
     }
-
-    if (action.actionType == MessageActionType.SUGGEST_CART) {
+    if (action.actionType == MessageActionType.SUGGEST_CARTS) {
       const embedding = await this.llmRepository.embedInput(action.payload);
       const relevantProducts =
         await this.productRepository.getRelevantProductsByStore(embedding);
+      if (!relevantProducts.length) {
+        throw new Error('Missing products embeddings');
+      }
       console.log(relevantProducts);
     }
   }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
 import { ChatSession } from 'src/domain/entities/chat-session';
 import { CreateChatSessionUseCase } from 'src/domain/usecases/chat/create-chat-session';
 import { GetChatSessionUseCase } from 'src/domain/usecases/chat/get-chat-session';
@@ -7,7 +7,7 @@ import { ChatMessage } from 'src/domain/entities/chat-message';
 import { ChatMessageDto } from 'src/domain/dtos/chat-message.dto';
 import { ConfirmActionUseCase } from 'src/domain/usecases/chat/confirm-action';
 
-const userId = '7f763aed-7e3a-4c31-b3a6-d6a175bc34bc';
+const userId = '3b05679a-f145-4594-ad38-9fbfc6dc571b';
 
 @Controller('chat')
 export class ChatController {
@@ -47,6 +47,7 @@ export class ChatController {
   }
 
   @Post(':sessionId/actions/:actionId/confirm')
+  @HttpCode(200)
   async confirmAction(
     @Param('sessionId') sessionId: string,
     @Param('actionId') actionId: string,

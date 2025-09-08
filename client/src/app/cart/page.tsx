@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/shadcn/ca
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 
-const userId = "7f763aed-7e3a-4c31-b3a6-d6a175bc34bc"
+const userId = "3b05679a-f145-4594-ad38-9fbfc6dc571b"
 
 export default function CartPage() {
   const queryClient = useQueryClient();

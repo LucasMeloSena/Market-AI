@@ -84,7 +84,7 @@ export class PrismaChatRepository implements ChatRepository {
       await this.prisma.chatMessageActions.create({
         data: {
           actionType:
-            action.actionType == MessageActionType.SUGGEST_CART
+            action.actionType == MessageActionType.SUGGEST_CARTS
               ? 'SUGGEST_CARTS'
               : 'SUGGEST_CARTS',
           payload: action.payload,

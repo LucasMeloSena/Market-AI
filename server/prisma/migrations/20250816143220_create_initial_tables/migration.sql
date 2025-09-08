@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS vector;
+
 -- CreateTable
 CREATE TABLE "public"."Store" (
     "id" TEXT NOT NULL,
@@ -13,7 +15,7 @@ CREATE TABLE "public"."Product" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "price" DECIMAL(9,2) NOT NULL,
-    "embedding" DOUBLE PRECISION[],
+    "embedding" vector(1536),
     "storeId" TEXT NOT NULL,
 
     CONSTRAINT "Product_pkey" PRIMARY KEY ("id")

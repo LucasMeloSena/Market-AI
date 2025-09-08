@@ -42,7 +42,7 @@ export class OpenAiLlmRepository implements LlmRepository {
     try {
       const response = await this.client.responses.parse({
         previous_response_id: previousMessageId,
-        model: 'gpt-5-nano',
+        model: 'gpt-4o-mini',
         instructions: prompt,
         input: content,
         text: {
@@ -115,14 +115,14 @@ export class OpenAiLlmRepository implements LlmRepository {
         .filter((line) => line.trim() !== '')
         .map((line) => {
           const data = JSON.parse(line) as {
-            customId: string;
+            custom_id: string;
             response: {
               body: CreateEmbeddingResponse;
             };
           };
 
           return {
-            productId: data.customId,
+            productId: data.custom_id,
             embedding: data.response.body.data[0].embedding,
           };
         });

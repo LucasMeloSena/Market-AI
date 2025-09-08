@@ -45,20 +45,34 @@ export class PrismaProductRepository implements ProductRepository {
     }
   }
 
-  async getRelevantProductsByStore(embedding: number[]): Promise<Product[]> {
+  async getRelevantProductsByStore(
+    embedding: number[],
+    similarityThreshold = 0.5,
+  ): Promise<Product[]> {
     try {
-      const products = await this.prisma.$queryRaw<ProductPrisma[]>`
-        SELECT "storeId", array_agg(p.*) AS products
-        FROM "products" p
-        WHERE embedding <=> ${embedding} < 0.5
-        GROUP BY "storeId"
-        ORDER BY embedding <=> ${embedding}
-        LIMIT 5
+      const result = await this.prisma.$queryRaw<
+        {
+          store: { id: string; name: string; products: ProductPrisma[] };
+        }[]
+      >`
+        SELECT json_build_object(
+          'id', s.id,
+          'name', s.name,
+          'products', json_agg(p)
+        ) AS store
+        FROM "Product" p
+        INNER JOIN "Store" s ON p."storeId" = s."id"
+        WHERE p.embedding <=> ${embedding}::vector < ${similarityThreshold}
+        GROUP BY s."id"
+        ORDER BY MIN(embedding <=> ${embedding}::vector)
+        LIMIT 5;
       `;
-      console.log(products);
-      return products.map(ProductMapper.toDomain);
+      console.log(result);
+      return [];
     } catch (e) {
-      throw new Error('Error when getting relevant products.');
+      throw new Error(
+        `Error when getting relevant products. Error: ${e.message}`,
+      );
     }
   }
 
@@ -68,12 +82,15 @@ export class PrismaProductRepository implements ProductRepository {
     try {
       await this.prisma.$transaction(
         products.map((product) =>
-          this.prisma.product.update({
-            where: { id: product.productId },
-            data: {
-              embedding: product.embedding,
-            },
-          }),
+          this.prisma.$executeRawUnsafe(
+            `
+              UPDATE "Product"
+              SET embedding = $1::vector
+              WHERE id = $2
+            `,
+            product.embedding,
+            product.productId,
+          ),
         ),
       );
     } catch (e) {

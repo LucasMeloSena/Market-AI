@@ -18,10 +18,10 @@ model Store {
 }
 
 model Product {
-  id        String  @id @default(uuid())
+  id        String                 @id @default(uuid())
   name      String
-  price     Decimal @db.Decimal(9, 2)
-  embedding Float[]
+  price     Decimal                @db.Decimal(9, 2)
+  embedding Unsupported("vector")?
 
   storeId  String
   store    Store      @relation(fields: [storeId], references: [id])
@@ -113,9 +113,9 @@ model ChatMessageActions {
   chatMessageId String
   chatMessage   ChatMessages @relation(fields: [chatMessageId], references: [id])
 
-  createdAt   DateTime @default(now())
-  confirmedAt DateTime @default(now())
-  executedAt  DateTime @default(now())
+  createdAt   DateTime  @default(now())
+  confirmedAt DateTime?
+  executedAt  DateTime?
 
   @@unique([chatMessageId, actionType])
 }

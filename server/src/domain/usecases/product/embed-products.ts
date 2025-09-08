@@ -13,8 +13,10 @@ export class EmbedProductsUseCase implements OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap() {
-    if (this.configService.get('ENV') === 'test') {
-      console.log('Skipping catalog embedding in test mode');
+    if (
+      this.configService.get<string>('NODE_ENV') === 'test' ||
+      this.configService.get<string>('NODE_ENV') === 'dev'
+    ) {
       return;
     }
 

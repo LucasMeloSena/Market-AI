@@ -33,9 +33,8 @@ export class AddUserMessageUseCase {
       aiChatMessageId,
       content,
     );
-    console.log(llmAnswer);
 
-    await this.addMessageToSessionUseCase.execute({
+    const llmMessage = await this.addMessageToSessionUseCase.execute({
       sessionId,
       content: llmAnswer.output.message,
       sender: MessageSender.ASSISTANT,
@@ -46,8 +45,8 @@ export class AddUserMessageUseCase {
     if (llmAnswer.output.action.type === 'suggest_carts') {
       const action = new ChatMessageAction(
         llmAnswer.output.action.type as MessageActionType,
-        JSON.stringify(llmAnswer.output.action.payload),
-        llmAnswer.answerId,
+        llmAnswer.output.action.payload.input,
+        llmMessage.id,
       );
       await this.addMessageActionUseCase.execute(action);
     }
