@@ -4,7 +4,7 @@ export class ChatSession {
   constructor(
     public id: string,
     public userId: string,
-    public messages: ChatMessage[],
     public createdAt: Date,
+    public messages: ChatMessage[],
   ) {}
 }

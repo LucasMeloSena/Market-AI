@@ -41,7 +41,7 @@ export class AddUserMessageUseCase {
       messageType: MessageType.TEXT,
       openAiMessageId: llmAnswer.answerId,
     });
-
+    console.log(JSON.stringify(llmAnswer));
     if (llmAnswer.output.action.type === 'suggest_carts') {
       const action = new ChatMessageAction(
         llmAnswer.output.action.type as MessageActionType,

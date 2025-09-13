@@ -2,14 +2,46 @@ import { ChatRepository } from 'src/domain/repositories/chat.repository';
 import { PrismaService } from '../prisma/prisma.service';
 import { ChatSession } from 'src/domain/entities/chat-session';
 import { ChatMapper } from 'src/domain/usecases/chat/mapper';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ChatMessage } from 'src/domain/entities/chat-message';
 import { ChatMessageAction } from 'src/domain/entities/chat-message-action';
 import { MessageActionType } from 'src/domain/enums/message-action-type';
+import { CartMapper } from 'src/domain/usecases/cart/mapper';
+import { Cart } from 'src/domain/entities/cart';
 
 @Injectable()
 export class PrismaChatRepository implements ChatRepository {
   constructor(private prisma: PrismaService) {}
+
+  async getRelatedCarts(messageId: string): Promise<Cart[]> {
+    try {
+      const relatedCarts = await this.prisma.cart.findMany({
+        where: {
+          suggestedByMessageId: messageId,
+        },
+        include: {
+          CartItem: {
+            include: {
+              product: true,
+            },
+          },
+          store: true,
+        },
+        orderBy: {
+          score: 'desc',
+        },
+      });
+      return relatedCarts.map(CartMapper.toDomain);
+    } catch (error) {
+      throw new BadRequestException(
+        'Error getting related carts. Error: ' + error,
+      );
+    }
+  }
 
   async createChatSession(userId: string): Promise<string> {
     try {
@@ -32,6 +64,7 @@ export class PrismaChatRepository implements ChatRepository {
         where: { id: sessionId },
         include: {
           ChatMessages: {
+            orderBy: { createdAt: 'asc' },
             include: {
               ChatMessageActions: true,
             },
@@ -43,6 +76,26 @@ export class PrismaChatRepository implements ChatRepository {
     } catch (error) {
       throw new InternalServerErrorException(
         'Error fetching chat session.' + error,
+      );
+    }
+  }
+
+  async getAllChatSessions(userId: string): Promise<ChatSession[]> {
+    try {
+      const chatSessions = await this.prisma.chatSessions.findMany({
+        where: { userId },
+        include: {
+          ChatMessages: {
+            include: {
+              ChatMessageActions: true,
+            },
+          },
+        },
+      });
+      return chatSessions.map(ChatMapper.sessionToDomain);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error fetching all chat sessions' + error,
       );
     }
   }

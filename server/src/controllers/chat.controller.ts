@@ -1,5 +1,4 @@
 import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
-import { ChatSession } from 'src/domain/entities/chat-session';
 import { CreateChatSessionUseCase } from 'src/domain/usecases/chat/create-chat-session';
 import { GetChatSessionUseCase } from 'src/domain/usecases/chat/get-chat-session';
 import { AddUserMessageUseCase } from 'src/domain/usecases/chat/add-user-message';
@@ -7,6 +6,7 @@ import { ChatMessage } from 'src/domain/entities/chat-message';
 import { ChatMessageDto } from 'src/domain/dtos/chat-message.dto';
 import { ConfirmActionUseCase } from 'src/domain/usecases/chat/confirm-action';
 import { ChooseCartUseCase } from 'src/domain/usecases/cart/choose-cart';
+import { GetAllChatSessionsUseCase } from 'src/domain/usecases/chat/get-all-chat-sessions';
 
 const userId = '3b05679a-f145-4594-ad38-9fbfc6dc571b';
 
@@ -15,16 +15,20 @@ export class ChatController {
   constructor(
     private readonly createChatSessionUseCase: CreateChatSessionUseCase,
     private readonly getChatSessionUseCase: GetChatSessionUseCase,
+    private readonly getAllChatSessionsUseCase: GetAllChatSessionsUseCase,
     private readonly addUserMessageUseCase: AddUserMessageUseCase,
     private readonly confirmActionUseCase: ConfirmActionUseCase,
     private readonly chooseCartUseCase: ChooseCartUseCase,
   ) {}
 
   @Get(':sessionId')
-  async getChatSession(
-    @Param('sessionId') sessionId: string,
-  ): Promise<ChatSession> {
+  async getChatSession(@Param('sessionId') sessionId: string) {
     return await this.getChatSessionUseCase.execute(sessionId);
+  }
+
+  @Get()
+  async getAllChatSessions() {
+    return await this.getAllChatSessionsUseCase.execute(userId);
   }
 
   @Post()

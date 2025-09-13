@@ -7,6 +7,7 @@ export class CartMapper {
       cart.id,
       cart.active,
       cart.store,
+      cart.score,
       cart.user,
       cart.CartItem.map((item) => ({
         id: item.id,

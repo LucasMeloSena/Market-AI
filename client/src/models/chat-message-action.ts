@@ -1,4 +1,4 @@
-import { MessageActionType } from '../enums/message-action-type';
+import { MessageActionType } from "@/enums/message-action-type";
 
 export class ChatMessageAction {
   constructor(
@@ -7,6 +7,6 @@ export class ChatMessageAction {
     public chatMessageId: string,
     public id?: string | null,
     public confirmedAt?: Date | null,
-    public executedAt?: Date | null,
+    public executedAt?: Date | null
   ) {}
 }

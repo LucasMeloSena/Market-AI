@@ -6,6 +6,7 @@ import { AddMessageToSessionUseCase } from 'src/domain/usecases/chat/add-message
 import { AddUserMessageUseCase } from 'src/domain/usecases/chat/add-user-message';
 import { ConfirmActionUseCase } from 'src/domain/usecases/chat/confirm-action';
 import { CreateChatSessionUseCase } from 'src/domain/usecases/chat/create-chat-session';
+import { GetAllChatSessionsUseCase } from 'src/domain/usecases/chat/get-all-chat-sessions';
 import { GetChatSessionUseCase } from 'src/domain/usecases/chat/get-chat-session';
 import { AnswerPropmtUseCase } from 'src/domain/usecases/llm/answer-prompt';
 import { SuggestCartsUseCase } from 'src/domain/usecases/llm/suggest-carts';
@@ -45,6 +46,7 @@ import { PrismaProductRepository } from 'src/infrastructure/repositories/product
     ConfirmActionUseCase,
     SuggestCartsUseCase,
     ChooseCartUseCase,
+    GetAllChatSessionsUseCase,
   ],
 })
 export class ChatModule {}

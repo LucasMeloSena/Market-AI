@@ -27,6 +27,7 @@ export class ChatMapper {
       raw.id,
       raw.userId,
       raw.ChatMessages.map(ChatMapper.messageToDomain),
+      raw.createdAt,
     );
   }
 
@@ -53,6 +54,7 @@ export class ChatMapper {
       Object.keys(messageTypeMap).find(
         (key) => messageTypeMap[key as MessageType] === raw.messageType,
       ) as MessageType,
+      raw.createdAt,
       raw.id,
       raw.openAiMessageId || null,
       raw.ChatMessageActions
@@ -69,6 +71,8 @@ export class ChatMapper {
       JSON.stringify(raw.payload),
       raw.chatMessageId,
       raw.id,
+      raw.confirmedAt,
+      raw.executedAt,
     );
   }
 }

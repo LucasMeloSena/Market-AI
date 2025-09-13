@@ -9,7 +9,7 @@ export class ChatMessage {
     public content: string,
     public sender: MessageSender,
     public messageType: MessageType,
-    public createdAt?: Date | null,
+    public createdAt: Date,
     public id?: string | null,
     public openAiMessageId?: string | null,
     public chatMessageActions?: ChatMessageAction[] | null,
