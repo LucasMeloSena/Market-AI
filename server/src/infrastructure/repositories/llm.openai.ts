@@ -1,27 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import { LlmRepository } from 'src/domain/repositories/llm.repository';
 import { zodTextFormat } from 'openai/helpers/zod';
-import z from 'zod';
+import z, { ZodSchema } from 'zod';
 import { CreateEmbeddingResponse } from 'openai/resources/embeddings';
-
-const answerMessageSchema = z.object({
-  message: z.string(),
-  action: z.discriminatedUnion('type', [
-    z.object({
-      type: z.literal('send_message'),
-    }),
-    z.object({
-      type: z.literal('suggest_carts'),
-      payload: z.object({
-        input: z.string(),
-      }),
-    }),
-  ]),
-});
-
-export type AnswerMessage = z.infer<typeof answerMessageSchema>;
 
 @Injectable()
 export class OpenAiLlmRepository implements LlmRepository {
@@ -34,19 +17,22 @@ export class OpenAiLlmRepository implements LlmRepository {
     });
   }
 
-  async answerPrompt(
-    previousMessageId: string,
+  async answerPrompt<T extends ZodSchema>(
+    previousMessageId: string | null = null,
     prompt: string,
     content: string,
-  ): Promise<{ output: AnswerMessage | null; answerId: string }> {
+    schema: T,
+  ): Promise<{ output: z.infer<T> | null; answerId: string }> {
     try {
       const response = await this.client.responses.parse({
-        previous_response_id: previousMessageId,
-        model: 'gpt-4o-mini',
+        ...(previousMessageId && {
+          previous_response_id: previousMessageId,
+        }),
+        model: 'gpt-4.1-nano',
         instructions: prompt,
         input: content,
         text: {
-          format: zodTextFormat(answerMessageSchema, 'answerMessageSchema'),
+          format: zodTextFormat(schema, 'schema'),
         },
       });
 
@@ -56,7 +42,9 @@ export class OpenAiLlmRepository implements LlmRepository {
 
       return { output: response.output_parsed, answerId: response.id };
     } catch (error) {
-      throw new Error('Error getting OpenAI response: ' + error);
+      throw new InternalServerErrorException(
+        'Error getting OpenAI response: ' + error,
+      );
     }
   }
 
@@ -68,7 +56,9 @@ export class OpenAiLlmRepository implements LlmRepository {
       });
       return response.data[0].embedding;
     } catch (error) {
-      throw new Error('Error getting OpenAI embedding: ' + error);
+      throw new InternalServerErrorException(
+        'Error getting OpenAI embedding: ' + error,
+      );
     }
   }
 
@@ -79,7 +69,9 @@ export class OpenAiLlmRepository implements LlmRepository {
         purpose: 'batch',
       });
       if (!uploadedFile.id) {
-        throw new Error('File upload failed, no file ID returned.');
+        throw new InternalServerErrorException(
+          'File upload failed, no file ID returned.',
+        );
       }
       await this.client.batches.create({
         input_file_id: uploadedFile.id,
@@ -87,7 +79,9 @@ export class OpenAiLlmRepository implements LlmRepository {
         endpoint: '/v1/embeddings',
       });
     } catch (error) {
-      throw new Error('Error uploading file to OpenAI: ' + error);
+      throw new InternalServerErrorException(
+        'Error uploading file to OpenAI: ' + error,
+      );
     }
   }
 
@@ -128,7 +122,9 @@ export class OpenAiLlmRepository implements LlmRepository {
         });
       return results;
     } catch (error) {
-      throw new Error('Error handling OpenAI webhook: ' + error);
+      throw new InternalServerErrorException(
+        'Error handling OpenAI webhook: ' + error,
+      );
     }
   }
 }

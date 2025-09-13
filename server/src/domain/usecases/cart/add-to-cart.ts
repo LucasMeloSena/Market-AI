@@ -14,7 +14,7 @@ export class AddToCartUseCase {
 
   async execute(cart: CartDto): Promise<void> {
     const product = await this.productRepository.getById(cart.productId);
-    const existingCart = await this.cartRepository.getCart(cart.userId);
+    const existingCart = await this.cartRepository.getCartByUser(cart.userId);
     if (existingCart && product?.store.id === existingCart.store.id) {
       return await this.cartRepository.addToCart(existingCart.id, cart);
     } else if (existingCart && product?.store.id !== existingCart.store.id) {

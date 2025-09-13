@@ -1,10 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Product } from 'src/domain/entities/product';
 import { ProductMapper } from 'src/domain/usecases/product/mapper';
 import { ProductRepository } from 'src/domain/repositories/product.repository';
 import { GetCatalogError } from 'src/domain/errors/get-catalog-error';
-import { Product as ProductPrisma } from 'generated/prisma';
+import { ProductsGroupedByStore } from 'src/domain/entities/products-grouped-by-store';
 
 @Injectable()
 export class PrismaProductRepository implements ProductRepository {
@@ -48,13 +52,9 @@ export class PrismaProductRepository implements ProductRepository {
   async getRelevantProductsByStore(
     embedding: number[],
     similarityThreshold = 0.5,
-  ): Promise<Product[]> {
+  ): Promise<ProductsGroupedByStore[]> {
     try {
-      const result = await this.prisma.$queryRaw<
-        {
-          store: { id: string; name: string; products: ProductPrisma[] };
-        }[]
-      >`
+      const result = await this.prisma.$queryRaw<ProductsGroupedByStore[]>`
         SELECT json_build_object(
           'id', s.id,
           'name', s.name,
@@ -67,10 +67,9 @@ export class PrismaProductRepository implements ProductRepository {
         ORDER BY MIN(embedding <=> ${embedding}::vector)
         LIMIT 5;
       `;
-      console.log(result);
-      return [];
+      return result;
     } catch (e) {
-      throw new Error(
+      throw new InternalServerErrorException(
         `Error when getting relevant products. Error: ${e.message}`,
       );
     }
@@ -94,7 +93,9 @@ export class PrismaProductRepository implements ProductRepository {
         ),
       );
     } catch (e) {
-      throw new Error('Error when updating product embeddings.');
+      throw new InternalServerErrorException(
+        'Error when updating product embeddings.',
+      );
     }
   }
 }

@@ -14,7 +14,7 @@ export class UpdateCartItemQuantityUseCase {
       throw new Error('Invalid cart item quantity');
     }
 
-    const registeredCart = await this.cartRepository.getCart(cart.userId);
+    const registeredCart = await this.cartRepository.getCartByUser(cart.userId);
 
     if (!registeredCart) {
       throw new NotFoundException('Cart not found');

@@ -9,7 +9,7 @@ export class RemoveProductFromCartUseCase {
   ) {}
 
   async execute(userId: string, productId: string): Promise<void> {
-    const registeredCart = await this.cartRepository.getCart(userId);
+    const registeredCart = await this.cartRepository.getCartByUser(userId);
 
     if (!registeredCart) {
       throw new NotFoundException('Cart not found');

@@ -1,6 +1,23 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { LlmRepository } from 'src/domain/repositories/llm.repository';
-import { AnswerMessage } from 'src/infrastructure/repositories/llm.openai';
+import z from 'zod';
+
+const answerMessageSchema = z.object({
+  message: z.string(),
+  action: z.discriminatedUnion('type', [
+    z.object({
+      type: z.literal('send_message'),
+    }),
+    z.object({
+      type: z.literal('suggest_carts'),
+      payload: z.object({
+        input: z.string(),
+      }),
+    }),
+  ]),
+});
+
+export type AnswerMessage = z.infer<typeof answerMessageSchema>;
 
 @Injectable()
 export class AnswerPropmtUseCase {
@@ -32,6 +49,7 @@ export class AnswerPropmtUseCase {
       previousMessageId,
       AnswerPropmtUseCase.PROMPT,
       content,
+      answerMessageSchema,
     );
   }
 }

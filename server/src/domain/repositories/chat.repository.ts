@@ -10,4 +10,5 @@ export interface ChatRepository {
   addMessageAction(action: ChatMessageAction): Promise<void>;
   getUnconfirmedAction(actionId: string): Promise<ChatMessageAction | null>;
   confirmAction(actionId: string): Promise<void>;
+  markActionAsExecuted(actionId: string): Promise<void>;
 }

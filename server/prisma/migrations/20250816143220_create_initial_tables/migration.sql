@@ -15,7 +15,7 @@ CREATE TABLE "public"."Product" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "price" DECIMAL(9,2) NOT NULL,
-    "embedding" vector(1536),
+    "embedding" vector,
     "storeId" TEXT NOT NULL,
 
     CONSTRAINT "Product_pkey" PRIMARY KEY ("id")

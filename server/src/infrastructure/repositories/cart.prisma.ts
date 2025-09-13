@@ -1,13 +1,52 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CartRepository } from 'src/domain/repositories/cart.repository';
 import { PrismaService } from '../prisma/prisma.service';
 import { CartDto } from 'src/domain/dtos/cart.dto';
 import { CartMapper } from 'src/domain/usecases/cart/mapper';
 import { Cart } from 'src/domain/entities/cart';
+import { SuggestCarts } from 'src/domain/usecases/llm/suggest-carts';
 
 @Injectable()
 export class PrismaCartRepository implements CartRepository {
   constructor(private prisma: PrismaService) {}
+
+  async saveSuggestedCarts(
+    userId: string,
+    messageId: string,
+    suggestedCarts: SuggestCarts,
+  ): Promise<void> {
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        for (const cart of suggestedCarts.carts) {
+          const createdCart = await tx.cart.create({
+            data: {
+              score: cart.score,
+              suggestedByMessageId: messageId,
+              userId,
+              storeId: cart.store_id,
+            },
+          });
+
+          const formattedCartItems = cart.products.map((product) => ({
+            quantity: product.quantity,
+            cartId: createdCart.id,
+            productId: product.id,
+          }));
+          await tx.cartItem.createMany({
+            data: formattedCartItems,
+          });
+        }
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error when saving suggested carts. Error:' + error,
+      );
+    }
+  }
 
   async createCart(cart: CartDto, storeId: string): Promise<void> {
     try {
@@ -53,7 +92,7 @@ export class PrismaCartRepository implements CartRepository {
     }
   }
 
-  async getCart(userId: string): Promise<Cart | null> {
+  async getCartByUser(userId: string): Promise<Cart | null> {
     try {
       const cart = await this.prisma.cart.findMany({
         where: { userId, active: true },
@@ -70,6 +109,30 @@ export class PrismaCartRepository implements CartRepository {
       return cart.length ? CartMapper.toDomain(cart[0]) : null;
     } catch (error) {
       throw new InternalServerErrorException('Failed to get cart');
+    }
+  }
+
+  async getCartById(cartId: string): Promise<Cart | null> {
+    try {
+      const cart = await this.prisma.cart.findUnique({
+        where: {
+          id: cartId,
+        },
+        include: {
+          CartItem: {
+            include: {
+              product: true,
+            },
+          },
+          user: true,
+          store: true,
+        },
+      });
+      return CartMapper.toDomain(cart);
+    } catch (error) {
+      throw new BadRequestException(
+        'Error getting cart by id. Error: ' + error,
+      );
     }
   }
 
@@ -119,6 +182,32 @@ export class PrismaCartRepository implements CartRepository {
       throw new InternalServerErrorException(
         'Failed to remove product from cart',
       );
+    }
+  }
+
+  async chooseCart(cartId: string, userId: string): Promise<void> {
+    try {
+      await this.prisma.$transaction([
+        this.prisma.cart.updateMany({
+          where: {
+            active: true,
+            userId: userId,
+          },
+          data: {
+            active: false,
+          },
+        }),
+        this.prisma.cart.update({
+          where: {
+            id: cartId,
+          },
+          data: {
+            active: true,
+          },
+        }),
+      ]);
+    } catch (error) {
+      throw new BadRequestException('Error choosing cart. Error: ' + error);
     }
   }
 }

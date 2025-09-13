@@ -2,7 +2,7 @@ import { ChatRepository } from 'src/domain/repositories/chat.repository';
 import { PrismaService } from '../prisma/prisma.service';
 import { ChatSession } from 'src/domain/entities/chat-session';
 import { ChatMapper } from 'src/domain/usecases/chat/mapper';
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ChatMessage } from 'src/domain/entities/chat-message';
 import { ChatMessageAction } from 'src/domain/entities/chat-message-action';
 import { MessageActionType } from 'src/domain/enums/message-action-type';
@@ -20,7 +20,9 @@ export class PrismaChatRepository implements ChatRepository {
       });
       return createdChatSession.id;
     } catch (error) {
-      throw new Error('Error creating chat session.' + error);
+      throw new InternalServerErrorException(
+        'Error creating chat session.' + error,
+      );
     }
   }
 
@@ -39,7 +41,9 @@ export class PrismaChatRepository implements ChatRepository {
       if (!chatSession) return null;
       return ChatMapper.sessionToDomain(chatSession);
     } catch (error) {
-      throw new Error('Error fetching chat session.' + error);
+      throw new InternalServerErrorException(
+        'Error fetching chat session.' + error,
+      );
     }
   }
 
@@ -53,7 +57,9 @@ export class PrismaChatRepository implements ChatRepository {
       });
       return ChatMapper.messageToDomain(chatMessage);
     } catch (error) {
-      throw new Error('Error adding message to chat session.' + error);
+      throw new InternalServerErrorException(
+        'Error adding message to chat session.' + error,
+      );
     }
   }
 
@@ -75,7 +81,9 @@ export class PrismaChatRepository implements ChatRepository {
       if (!aiMessageId) return null;
       return aiMessageId?.openAiMessageId;
     } catch (error) {
-      throw new Error('Error fetching AI message.' + error);
+      throw new InternalServerErrorException(
+        'Error fetching AI message.' + error,
+      );
     }
   }
 
@@ -92,7 +100,9 @@ export class PrismaChatRepository implements ChatRepository {
         },
       });
     } catch (error) {
-      throw new Error('Error adding message action.' + error);
+      throw new InternalServerErrorException(
+        'Error adding message action.' + error,
+      );
     }
   }
 
@@ -106,7 +116,9 @@ export class PrismaChatRepository implements ChatRepository {
       if (!action) return null;
       return ChatMapper.actionToDomain(action);
     } catch (error) {
-      throw new Error('Error getting unconfirmed action.' + error);
+      throw new InternalServerErrorException(
+        'Error getting unconfirmed action.' + error,
+      );
     }
   }
 
@@ -117,7 +129,22 @@ export class PrismaChatRepository implements ChatRepository {
         data: { confirmedAt: new Date() },
       });
     } catch (error) {
-      throw new Error('Error confirming action.' + error);
+      throw new InternalServerErrorException(
+        'Error confirming action.' + error,
+      );
+    }
+  }
+
+  async markActionAsExecuted(actionId: string): Promise<void> {
+    try {
+      await this.prisma.chatMessageActions.update({
+        where: { id: actionId },
+        data: { executedAt: new Date() },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error marking action as executed.' + error,
+      );
     }
   }
 }

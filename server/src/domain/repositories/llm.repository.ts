@@ -1,11 +1,12 @@
-import { AnswerMessage } from 'src/infrastructure/repositories/llm.openai';
+import z, { ZodSchema } from 'zod';
 
 export interface LlmRepository {
-  answerPrompt(
+  answerPrompt<T extends ZodSchema>(
     previousMessageId: string,
     prompt: string,
     content: string,
-  ): Promise<{ output: AnswerMessage | null; answerId: string }>;
+    schema: ZodSchema,
+  ): Promise<{ output: z.infer<T> | null; answerId: string }>;
   embedInput(input: string): Promise<number[]>;
   uploadFile(jsonFile: File): Promise<void>;
   handleWebhook(
